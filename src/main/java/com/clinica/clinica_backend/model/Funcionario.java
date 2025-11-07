@@ -9,15 +9,18 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "medico")
-public class Medico {
+@Table(name = "funcionario")
+public class Funcionario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String nome;
     private String telefone;
-    private String crm;
-    private String especialidade;
+
+    @Column(unique = true)
+    private String cpf;
+
+    private String cargo;
     private BigDecimal salario;
 }
