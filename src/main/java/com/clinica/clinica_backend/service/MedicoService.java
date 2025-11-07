@@ -33,10 +33,30 @@ public class MedicoService {
     }
 
     public Medico salvar(Medico medico) {
-        if (medico.getId() == null && existePorCrm(medico.getCrm())) {
+        if (medico.getId() != null) {
+            throw new RuntimeException("Não é permitido enviar ID ao criar um novo médico");
+        }
+        if (existePorCrm(medico.getCrm())) {
             throw new RuntimeException("Já existe um médico com este CRM");
         }
         return repo.save(medico);
+    }
+
+    public Medico atualizar(Integer id, Medico medico) {
+        Medico existente = buscarPorId(id);
+
+        repo.findByCrm(medico.getCrm()).ifPresent(outro -> {
+            if (!outro.getId().equals(id)) {
+                throw new RuntimeException("Já existe outro médico com este CRM");
+            }
+        });
+
+        existente.setNome(medico.getNome());
+        existente.setCrm(medico.getCrm());
+        existente.setEspecialidade(medico.getEspecialidade());
+        existente.setTelefone(medico.getTelefone());
+
+        return repo.save(existente);
     }
 
     public void deletar(Integer id) {

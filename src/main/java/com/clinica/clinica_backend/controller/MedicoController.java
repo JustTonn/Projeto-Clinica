@@ -62,8 +62,7 @@ public class MedicoController {
     @PutMapping("/{id}")
     public ResponseEntity<Medico> atualizar(@PathVariable Integer id, @RequestBody Medico medico) {
         try {
-            medico.setId(id);
-            Medico atualizado = service.salvar(medico);
+            Medico atualizado = service.atualizar(id, medico);
             return ResponseEntity.ok(atualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
