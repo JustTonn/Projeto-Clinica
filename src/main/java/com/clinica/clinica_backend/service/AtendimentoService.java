@@ -40,10 +40,10 @@ public class AtendimentoService {
         return count == 0;
     }
 
-    public void cancelarAtendimento(Integer id) {
+    public Atendimento cancelarAtendimento(Integer id) {
         Atendimento atendimento = buscarPorId(id);
         atendimento.setStatus("CANCELADO");
-        repo.save(atendimento);
+        return repo.save(atendimento);
     }
 
     public void deletar(Integer id) {

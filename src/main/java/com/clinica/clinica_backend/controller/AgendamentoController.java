@@ -56,4 +56,37 @@ public class AgendamentoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/{agendaId}")
+    public ResponseEntity<?> buscarAgendamento(@PathVariable Integer agendaId) {
+        try {
+            AgendamentoResponseDTO resultado = service.buscarAgendamentoCompleto(agendaId);
+            return ResponseEntity.ok(resultado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{agendaId}")
+    public ResponseEntity<?> editarAgendamento(
+            @PathVariable Integer agendaId,
+            @RequestBody AgendamentoDto dto) {
+        try {
+            AgendamentoResponseDTO resultado = service.editarAgendamento(agendaId, dto);
+            return ResponseEntity.ok(resultado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{agendaId}")
+    public ResponseEntity<?> deletarAgendamento(@PathVariable Integer agendaId) {
+        try {
+            service.deletarAgendamento(agendaId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

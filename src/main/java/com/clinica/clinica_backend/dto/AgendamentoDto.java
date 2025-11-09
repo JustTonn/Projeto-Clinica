@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class AgendamentoDto {
 
+    private Integer id;
     private Integer medicoId;
     private Integer pacienteId;
     private Integer funcionarioId;

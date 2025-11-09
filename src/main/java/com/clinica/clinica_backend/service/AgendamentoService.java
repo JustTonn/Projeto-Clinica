@@ -74,6 +74,63 @@ public class AgendamentoService {
     }
 
     @Transactional
+    public AgendamentoResponseDTO editarAgendamento(Integer agendaId, AgendamentoDto dto) {
+
+        Agenda agenda = agendaRepo.findById(agendaId)
+                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+
+        Atendimento atendimento = agenda.getAtendimento();
+
+        Medico medico = medicoRepo.findById(dto.getMedicoId())
+                .orElseThrow(() -> new RuntimeException("Médico não encontrado"));
+
+        Paciente paciente = pacienteRepo.findById(dto.getPacienteId())
+                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+
+        Funcionario funcionario = funcionarioRepo.findById(dto.getFuncionarioId())
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+
+        if (!atendimento.getDataHora().equals(dto.getDataHora()) ||
+                !atendimento.getMedico().getId().equals(dto.getMedicoId())) {
+
+            Integer count = atendimentoRepo.countByMedicoAndDataHora(
+                    dto.getMedicoId(), dto.getDataHora());
+            if (count > 0) {
+                throw new RuntimeException("Médico não disponível neste horário");
+            }
+        }
+
+        atendimento.setMedico(medico);
+        atendimento.setPaciente(paciente);
+        atendimento.setDescricao(dto.getDescricao());
+        atendimento.setTipo(dto.getTipo());
+        atendimento.setPreco(dto.getPreco());
+        atendimento.setDataHora(dto.getDataHora());
+
+        Atendimento atendimentoAtualizado = atendimentoRepo.save(atendimento);
+
+        agenda.setFuncionario(funcionario);
+        agenda.setDataAgenda(dto.getDataHora());
+
+        Agenda agendaAtualizada = agendaRepo.save(agenda);
+
+        return new AgendamentoResponseDTO(
+                atendimentoAtualizado,
+                agendaAtualizada,
+                "Agendamento atualizado com sucesso!");
+    }
+
+    public AgendamentoResponseDTO buscarAgendamentoCompleto(Integer agendaId) {
+        Agenda agenda = agendaRepo.findById(agendaId)
+                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+
+        return new AgendamentoResponseDTO(
+                agenda.getAtendimento(),
+                agenda,
+                "Agendamento encontrado");
+    }
+
+    @Transactional
     public void confirmarAgendamento(Integer agendaId) {
         Agenda agenda = agendaRepo.findById(agendaId)
                 .orElseThrow(() -> new RuntimeException("Agenda não encontrada"));
@@ -96,6 +153,19 @@ public class AgendamentoService {
     }
 
     @Transactional
+    public void deletarAgendamento(Integer agendaId) {
+        Agenda agenda = agendaRepo.findById(agendaId)
+                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+
+        if ("REALIZADO".equals(agenda.getStatus()) || "CONCLUIDO".equals(agenda.getAtendimento().getStatus())) {
+            throw new RuntimeException("Não é possível excluir um agendamento já realizado");
+        }
+
+        atendimentoRepo.delete(agenda.getAtendimento());
+        agendaRepo.delete(agenda);
+    }
+
+    @Transactional
     public void realizarAgendamento(Integer agendaId) {
         Agenda agenda = agendaRepo.findById(agendaId)
                 .orElseThrow(() -> new RuntimeException("Agenda não encontrada"));
@@ -107,4 +177,5 @@ public class AgendamentoService {
         atendimento.setStatus("CONCLUIDO");
         atendimentoRepo.save(atendimento);
     }
+
 }
